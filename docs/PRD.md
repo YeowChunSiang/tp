@@ -50,13 +50,13 @@ MediTrack addresses these problems by providing a centralized digital system tha
 
 **Inventory Management**
 
-As a field medic, I want to add new medical supplies with quantity and expiry dates so that the inventory tracker remains accurate and up to date.
+As a field medic, I want to add, update, and remove medical supplies so that the inventory accurately reflects current stock levels in the field at all times
 
 ---
 
 **Expiry Monitoring**
 
-As a field medic, I want the system to display a list of supplies that will expire within the next 30 days so that I can replace them before they become unusable during operations.
+As a field medic, I want to view a list of supplies expiring within the next 30 days so that I can decide what to use before they become unusable during operations.
 
 ---
 
@@ -74,13 +74,19 @@ As a platoon commander, I want to view a list of personnel who are marked as “
 
 **Duty Rostering**
 
-As a field medic, I want the system to generate a randomized duty roster from personnel marked as “Fit” so that I can reduce the time spent manually assigning duties during exercises.
+As a platoon commander, I want the system to generate a randomized duty roster from personnel marked as “Fit” so that I can reduce the time spent manually assigning duties during exercises.
 
 ---
 
 **Supply Visibility**
 
-As a logistics officer, I want to view current medical supply inventory levels so that I can plan resupply operations effectively.
+As a logistics officer, I want to view the full inventory and generate a resupply report so that I can identify what needs to be ordered and prepare for the next resupply without modifying any records directly.
+
+---
+
+**Personnel Visibility**
+
+As a field medic, I want to view the personnel list in read-only mode so that I have situational awareness of who is available during operations.
 
 ---
 
@@ -153,6 +159,35 @@ The system shall:
 
 ---
 
+### Authentication and First Launch
+
+The system shall:
+
+- Detect on startup whether a data file exists.
+- On first launch, prompt the user to set a password before any other screen is accessible.
+- On every subsequent launch, require the user to enter the password and select a role before accessing the application.
+- Restrict available screens and actions based on the selected role, as follows:
+  
+| Role | Permitted Actions |
+|---|---|
+| Field Medic | Add / edit / delete supplies, view inventory, view expiring supplies, view personnel (read-only) |
+| Medical Officer / Platoon Commander | Add / remove personnel, update personnel status, view FIT personnel, generate duty roster |
+| Logistics Officer | View supply inventory (read-only) |
+
+---
+
+### Duty Roster Generation
+
+The system shall:
+
+- Retrieve the list of all personnel currently marked as FIT.
+- Display a randomised numbered list of those personnel, one entry per person.
+- Provide a regenerate option that reshuffles the order without navigating
+  away from the screen.
+- Display an error message if no FIT personnel are available.
+
+---
+
 ## 6. Non-Functional Requirements
 
 ### Data Persistence
@@ -181,5 +216,19 @@ The system should prevent invalid data entries such as:
 - Negative supply quantities
 - Invalid expiration dates
 - Missing required information
+
+---
+
+### Security
+
+MediTrack uses a single shared password to protect access to the application,
+reflecting the reality that field teams typically operate from one shared device.
+
+The system shall:
+
+- Require a password at application launch before any features are accessible. On first launch, prompt the user to set the password. The password shall be stored immediately as a BCrypt hash in the local JSON data file — never in plain text.
+- Present a role selection screen upon successful authentication, where the user selects their operating role (Field Medic, Medical Officer / Platoon Commander, or Logistics Officer).
+- Restrict available screens and actions to those permitted for the selected role.
+- Destroy the active session when the application is closed, requiring re-authentication on the next launch.
 
 ---
