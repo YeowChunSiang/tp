@@ -16,6 +16,10 @@ public class RemovePersonnelModal extends Dialog<RemovePersonnelCommand> {
     private final String personnelName;
     private final int oneBasedIndex;
 
+    /**
+     * @param personnelName shown in the message
+     * @param oneBasedIndex table row index
+     */
     public RemovePersonnelModal(String personnelName, int oneBasedIndex) {
         this.personnelName = personnelName;
         this.oneBasedIndex = oneBasedIndex;

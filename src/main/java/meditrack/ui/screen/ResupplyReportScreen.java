@@ -27,14 +27,7 @@ import meditrack.logic.parser.Parser;
 import meditrack.logic.parser.exceptions.ParseException;
 import meditrack.model.ModelManager;
 
-/**
- * Resupply Report screen for the Logistics Officer.
- *
- * <p>Clicking "Generate Report" flags supplies that are low stock
- * (below 20 units) or expiring within 30 days. Each flagged item
- * shows the reason: Low Stock, Expiring Soon, or Both. If nothing
- * is flagged an all-clear message is shown instead.
- */
+/** Logistics screen: generate report and show flagged supplies in a table. */
 public class ResupplyReportScreen extends VBox {
 
     private final ModelManager model;
@@ -44,6 +37,10 @@ public class ResupplyReportScreen extends VBox {
     private final Label statusLabel = new Label();
     private final Label errorLabel = new Label();
 
+    /**
+     * @param model for validation and flagged-item queries
+     * @param logic runs the generate report command
+     */
     public ResupplyReportScreen(ModelManager model, Logic logic) {
         this.model = model;
         this.logic = logic;
@@ -96,10 +93,6 @@ public class ResupplyReportScreen extends VBox {
         VBox.setVgrow(reportTable, Priority.ALWAYS);
     }
 
-    /**
-     * Validates input, runs the command through Logic (so data is saved), then fills the table
-     * using the same merge rules as {@link GenerateResupplyReportCommand}.
-     */
     private void handleGenerateReport() {
         clearMessages();
 
@@ -160,13 +153,14 @@ public class ResupplyReportScreen extends VBox {
         errorLabel.setManaged(false);
     }
 
-    /** One row in the resupply report table. */
+    /** Table row for the report grid. */
     public static class ReportRow {
         final String name;
         final int quantity;
         final LocalDate expiryDate;
         final String reason;
 
+        /** @param reason flag text shown in the last column */
         public ReportRow(String name, int quantity, LocalDate expiryDate, String reason) {
             this.name = name;
             this.quantity = quantity;

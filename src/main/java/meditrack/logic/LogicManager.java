@@ -17,11 +17,16 @@ public class LogicManager implements Logic {
     private final Model model;
     private final Storage storage;
 
+    /**
+     * @param model in-memory state
+     * @param storage persistence layer
+     */
     public LogicManager(Model model, Storage storage) {
         this.model = model;
         this.storage = storage;
     }
 
+    /** Runs the command, checks role, then saves to storage. */
     @Override
     public CommandResult executeCommand(Command command) throws CommandException {
         // Role enforcement: check that the current session role matches the command's requirement

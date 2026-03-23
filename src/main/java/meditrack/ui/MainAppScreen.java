@@ -44,6 +44,11 @@ public class MainAppScreen extends HBox {
     private SupplyLevelsScreen supplyLevelsScreen;
     private ResupplyReportScreen resupplyReportScreen;
 
+    /**
+     * @param mediTrack data loaded at startup
+     * @param storage for persistence
+     * @param logoutCallback run when user logs out (returns to login)
+     */
     public MainAppScreen(MediTrack mediTrack, StorageManager storage, Runnable logoutCallback) {
         this.model = new ModelManager(mediTrack);
         this.storage = storage;

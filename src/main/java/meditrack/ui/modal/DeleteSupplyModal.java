@@ -17,21 +17,15 @@ import meditrack.logic.parser.exceptions.ParseException;
 import meditrack.model.ModelManager;
 import meditrack.model.Supply;
 
-/**
- * Simple yes / no confirmation dialog for deleting a supply.
- *
- * <p>If the user clicks OK the command is executed through Logic.
- * If they cancel nothing happens.
- */
+/** Confirm then delete supply via logic. */
 public class DeleteSupplyModal {
 
     /**
-     * Shows a confirmation alert and deletes the supply if the user agrees.
-     *
-     * @param logic         logic layer to execute the delete command
-     * @param supply        the supply about to be deleted (used for the message)
-     * @param oneBasedIndex 1-based index of the supply in the list
-     * @param owner         parent window
+     * @param model for parser validation
+     * @param logic executes the delete command
+     * @param supply row to delete
+     * @param oneBasedIndex table index (1-based)
+     * @param owner parent window
      */
     public static void show(ModelManager model, Logic logic, Supply supply,
                             int oneBasedIndex, Window owner) {

@@ -13,12 +13,7 @@ import meditrack.commons.core.Index;
 import meditrack.logic.commands.exceptions.CommandException;
 import meditrack.model.exceptions.InvalidIndexException;
 
-/**
- * Concrete implementation of {@link Model}.
- *
- * <p>Wraps a {@link MediTrack} data object and a {@link Session}, and exposes
- * supply and personnel operations for the rest of the app.
- */
+/** In-memory model: supplies + personnel + current session. */
 public class ModelManager implements Model {
 
     private static final String MSG_DUPLICATE =
@@ -32,33 +27,39 @@ public class ModelManager implements Model {
     private final Session session;
 
     /**
-     * @param mediTrack backing data store (often loaded from {@code Storage})
+     * Creates a manager backed by the given {@link MediTrack}.
+     *
+     * @param mediTrack data loaded from storage or empty for a new session
      */
     public ModelManager(MediTrack mediTrack) {
         this.mediTrack = mediTrack;
         this.session = Session.getInstance();
     }
 
-    /** Creates a manager with an empty {@link MediTrack} (e.g. for tests). */
+    /** Creates a manager with an empty {@link MediTrack}. */
     public ModelManager() {
         this(new MediTrack());
     }
 
+    /** Returns the current session. */
     @Override
     public Session getSession() {
         return session;
     }
 
+    /** Sets the active role after login. */
     @Override
     public void setRole(Role role) {
         session.setRole(role);
     }
 
+    /** Adds a supply; duplicate names are rejected in the backing list. */
     @Override
     public void addSupply(Supply supply) {
         mediTrack.addSupply(supply);
     }
 
+    /** Replaces the supply at {@code targetIndex}. */
     @Override
     public void editSupply(Index targetIndex, Supply editedSupply) {
         int zeroIndex = targetIndex.getZeroBased();
@@ -69,6 +70,7 @@ public class ModelManager implements Model {
         mediTrack.setSupply(zeroIndex, editedSupply);
     }
 
+    /** Deletes and returns the supply at {@code targetIndex}. */
     @Override
     public Supply deleteSupply(Index targetIndex) {
         int zeroIndex = targetIndex.getZeroBased();
@@ -79,11 +81,13 @@ public class ModelManager implements Model {
         return mediTrack.removeSupply(zeroIndex);
     }
 
+    /** Returns all supplies as an observable list. */
     @Override
     public ObservableList<Supply> getFilteredSupplyList() {
         return mediTrack.getSupplyList();
     }
 
+    /** Supplies expiring within {@code daysThreshold} days, sorted by expiry. */
     @Override
     public List<Supply> getExpiringSupplies(int daysThreshold) {
         LocalDate today = LocalDate.now();
@@ -94,6 +98,7 @@ public class ModelManager implements Model {
                 .collect(Collectors.toList());
     }
 
+    /** Supplies below {@code quantityThreshold} quantity, sorted ascending. */
     @Override
     public List<Supply> getLowStockSupplies(int quantityThreshold) {
         return mediTrack.getInternalSupplyList().stream()
@@ -102,16 +107,19 @@ public class ModelManager implements Model {
                 .collect(Collectors.toList());
     }
 
+    /** Read-only view of data for saving to disk. */
     @Override
     public ReadOnlyMediTrack getMediTrack() {
         return mediTrack;
     }
 
+    /** Observable personnel list for the UI. */
     @Override
     public ObservableList<Personnel> getPersonnelList() {
         return mediTrack.getPersonnelList();
     }
 
+    /** Adds a person to the roster. */
     @Override
     public void addPersonnel(String name, Status status) throws CommandException {
         Personnel candidate = new Personnel(name, status);
@@ -123,6 +131,7 @@ public class ModelManager implements Model {
         getInternalPersonnelList().add(candidate);
     }
 
+    /** Removes the person at the given 1-based index. */
     @Override
     public Personnel deletePersonnel(int oneBasedIndex) throws CommandException {
         List<Personnel> list = getInternalPersonnelList();
@@ -133,6 +142,7 @@ public class ModelManager implements Model {
         return list.remove(oneBasedIndex - 1);
     }
 
+    /** Updates status for the person at the 1-based index. */
     @Override
     public void setPersonnelStatus(int oneBasedIndex, Status newStatus) throws CommandException {
         List<Personnel> list = getInternalPersonnelList();
@@ -143,6 +153,7 @@ public class ModelManager implements Model {
         list.get(oneBasedIndex - 1).setStatus(newStatus);
     }
 
+    /** Personnel filtered by status; {@code null} means everyone. */
     @Override
     public List<Personnel> getFilteredPersonnelList(Status statusFilter) {
         if (statusFilter == null) {
@@ -153,6 +164,7 @@ public class ModelManager implements Model {
                 .collect(Collectors.toUnmodifiableList());
     }
 
+    /** Shuffled list of FIT personnel for duty roster. */
     @Override
     public List<Personnel> generateRoster() throws CommandException {
         List<Personnel> fit = new ArrayList<>(getFilteredPersonnelList(Status.FIT));
@@ -163,6 +175,7 @@ public class ModelManager implements Model {
         return fit;
     }
 
+    /** Number of people in the roster. */
     @Override
     public int getPersonnelCount() {
         return getInternalPersonnelList().size();

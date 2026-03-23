@@ -21,13 +21,7 @@ import meditrack.ui.modal.AddSupplyModal;
 import meditrack.ui.modal.DeleteSupplyModal;
 import meditrack.ui.modal.EditSupplyModal;
 
-/**
- * Inventory screen for the Field Medic role.
- *
- * <p>Shows a full table of all supplies with add, edit and delete actions.
- * The table is bound to the ObservableList so it updates automatically
- * whenever the data changes.
- */
+/** Field medic inventory: table bound to the model list, add/edit/delete. */
 public class InventoryScreen extends VBox {
 
     private final ModelManager model;
@@ -35,6 +29,10 @@ public class InventoryScreen extends VBox {
 
     private final TableView<Supply> table = new TableView<>();
 
+    /**
+     * @param model data source
+     * @param logic executes commands from this screen
+     */
     public InventoryScreen(ModelManager model, Logic logic) {
         this.model = model;
         this.logic = logic;
@@ -46,17 +44,13 @@ public class InventoryScreen extends VBox {
         setSpacing(10);
         setPadding(new Insets(20));
 
-        // title
         Label title = new Label("Inventory");
         title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        // add supply button
         Button addBtn = new Button("+ Add Supply");
         addBtn.setStyle("-fx-background-color: #1abc9c; -fx-text-fill: white; "
                 + "-fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 5; -fx-cursor: hand;");
         addBtn.setOnAction(e -> AddSupplyModal.show(model, logic, getScene().getWindow()));
-
-        
 
         TableColumn<Supply, Number> indexCol = new TableColumn<>("#");
         indexCol.setPrefWidth(50);
@@ -78,7 +72,6 @@ public class InventoryScreen extends VBox {
         expiryCol.setCellValueFactory(cell ->
                 new ReadOnlyObjectWrapper<>(cell.getValue().getExpiryDate()));
 
-        // actions column with edit + delete buttons per row
         TableColumn<Supply, Void> actionsCol = new TableColumn<>("Actions");
         actionsCol.setPrefWidth(170);
         actionsCol.setCellFactory(col -> new TableCell<>() {

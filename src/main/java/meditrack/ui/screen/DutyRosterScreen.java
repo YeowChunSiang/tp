@@ -30,6 +30,7 @@ public class DutyRosterScreen extends VBox {
 
     private boolean hasRoster = false;
 
+    /** @param model used to run roster generation */
     public DutyRosterScreen(ModelManager model) {
         this.model = model;
         buildUi();

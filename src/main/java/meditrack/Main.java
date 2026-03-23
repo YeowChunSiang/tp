@@ -24,6 +24,7 @@ public class Main extends Application {
     /** Loaded once per session from disk (or empty if no save yet). */
     private MediTrack mediTrack;
 
+    /** Starts the app: load data, then first-launch or login. */
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;

@@ -12,9 +12,10 @@ public class PasswordManager {
     private static final int WORK_FACTOR = 12;
 
     /**
-     * Takes a plain-text password and returns a BCrypt hash string suitable for storage.
-     * * @param plainText The plain-text password entered by the user.
-     * @return A BCrypt hash string.
+     * Hashes a plain-text password for storage.
+     *
+     * @param plainText password from the user
+     * @return BCrypt hash string
      */
     public static String hashPassword(String plainText) {
         // Generate a salt with the specified work factor and hash the password
@@ -23,10 +24,11 @@ public class PasswordManager {
     }
 
     /**
-     * Compares the plain text password entered by the user against the stored BCrypt hash.
-     * * @param plainTextPassword The password entered in the UI.
-     * @param storedHash The BCrypt hash retrieved from Storage.
-     * @return true if the password matches the hash, false otherwise.
+     * Checks a password against a stored BCrypt hash.
+     *
+     * @param plainTextPassword password from the user
+     * @param storedHash hash from storage
+     * @return {@code true} if they match
      */
     public static boolean checkPassword(String plainTextPassword, String storedHash) {
         if (storedHash == null || !storedHash.startsWith("$2a$")) {

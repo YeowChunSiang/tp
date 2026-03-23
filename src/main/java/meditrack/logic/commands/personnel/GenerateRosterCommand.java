@@ -13,15 +13,8 @@ import meditrack.model.Personnel;
 import meditrack.model.Role;
 
 /**
- * Generates a randomised duty roster from all currently FIT personnel.
- *
- * <p>This command is <b>stateless</b>: it does not persist the roster to the model,
- * and each execution produces a fresh shuffle. The roster is stored in
- * {@link #getLastRoster()} for the UI to read after execution.
- *
- * <p>Validation rule: at least one FIT personnel must exist — enforced by
- * {@link ModelManager#generateRoster()}, which throws {@link CommandException}
- * if the FIT list is empty.
+ * Shuffles FIT personnel into a duty order. Not saved to the model;
+ * UI reads {@link #getLastRoster()} after run.
  */
 public class GenerateRosterCommand extends Command {
 
@@ -33,13 +26,17 @@ public class GenerateRosterCommand extends Command {
                     + "No parameters required.\n"
                     + "Example: " + COMMAND_WORD;
 
-    /** Stores the last generated roster so the UI can retrieve it without re-executing. */
     private List<Personnel> lastRoster;
 
+    /** Creates a command; the roster is produced when {@link #execute} runs. */
+    public GenerateRosterCommand() {
+    }
+
+    /** Shuffles FIT personnel and returns the roster text. */
     @Override
     public CommandResult execute(Model model) throws CommandException {
         ModelManager manager = (ModelManager) model;
-        lastRoster = manager.generateRoster(); // throws CommandException if no FIT personnel
+        lastRoster = manager.generateRoster();
 
         String header = String.format(MESSAGE_SUCCESS_HEADER, lastRoster.size());
         String numberedList = IntStream.range(0, lastRoster.size())
@@ -49,15 +46,13 @@ public class GenerateRosterCommand extends Command {
         return new CommandResult(header + "\n" + numberedList);
     }
 
+    /** Medical officer only. */
     @Override
     public Role getRequiredRole() {
         return Role.MEDICAL_OFFICER;
     }
 
-    /**
-     * Returns the roster produced by the most recent {@link #execute(Model)} call,
-     * or {@code null} if this command has not yet been executed.
-     */
+    /** Last roster from {@link #execute}, or {@code null} if not run yet. */
     public List<Personnel> getLastRoster() {
         return lastRoster;
     }

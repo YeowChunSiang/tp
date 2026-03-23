@@ -14,6 +14,11 @@ public class Supply {
     private final int quantity;
     private final LocalDate expiryDate;
 
+    /**
+     * @param name supply name (must not be null)
+     * @param quantity stock count
+     * @param expiryDate expiry date (must not be null)
+     */
     public Supply(String name, int quantity, LocalDate expiryDate) {
         this.name = Objects.requireNonNull(name);
         this.quantity = quantity;
@@ -45,11 +50,13 @@ public class Supply {
         return name.equalsIgnoreCase(otherSupply.name);
     }
 
+    /** Hash from lowercased name. */
     @Override
     public int hashCode() {
         return Objects.hash(name.toLowerCase());
     }
 
+    /** Debug-style string with all fields. */
     @Override
     public String toString() {
         return String.format("Supply{name='%s', quantity=%d, expiryDate=%s}", name, quantity, expiryDate);

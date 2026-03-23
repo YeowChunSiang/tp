@@ -10,40 +10,24 @@ import meditrack.model.Personnel;
 import meditrack.model.ReadOnlyMediTrack;
 
 /**
- * Manages storage of MediTrack data in local storage.
- *
- * <p>Fills in the two TODOs left by the team's stub:
- * <ol>
- *   <li>{@link #readMediTrackData()} — maps {@link JsonSerializableMediTrack}
- *       → {@link ReadOnlyMediTrack} using {@link JsonAdaptedPersonnel#toModelType()}</li>
- *   <li>{@link #saveMediTrackData(ReadOnlyMediTrack)} — maps
- *       {@link ReadOnlyMediTrack} → {@link JsonSerializableMediTrack} and writes to disk</li>
- * </ol>
+ * Saves and loads {@link MediTrack} data to {@code data.json} via Jackson.
  */
 public class StorageManager implements Storage {
 
     private final JsonMediTrackStorage jsonStorage;
 
-    /** Constructs a {@code StorageManager} with the default JSON storage engine. */
+    /** Creates a storage manager using the default JSON file path. */
     public StorageManager() {
         this.jsonStorage = new JsonMediTrackStorage();
     }
 
-
+    /** True if data.json does not exist yet. */
     @Override
     public boolean isFirstLaunch() {
         return !jsonStorage.getFilePath().toFile().exists();
     }
 
-    
-    /**
-     * Reads the local JSON file and converts it to a {@link ReadOnlyMediTrack}.
-     *
-     * <p>If the file is missing or a personnel record cannot be parsed,
-     * an empty Optional is returned so the app falls back to defaults.
-     *
-     * @return Optional containing populated {@link MediTrack}, or empty on failure
-     */
+    /** Loads from data.json; skips bad rows. */
     @Override
     public Optional<ReadOnlyMediTrack> readMediTrackData() {
         Optional<JsonSerializableMediTrack> rawData = jsonStorage.readData();
@@ -54,13 +38,11 @@ public class StorageManager implements Storage {
         JsonSerializableMediTrack serializable = rawData.get();
         MediTrack mediTrack = new MediTrack();
 
-        // Convert each JsonAdaptedPersonnel → Personnel and add to MediTrack
         for (JsonAdaptedPersonnel adapted : serializable.personnel) {
             try {
                 Personnel p = adapted.toModelType();
                 mediTrack.addPersonnelRecord(p);
             } catch (CommandException e) {
-                // Corrupt record: skip and log; do not crash the whole app
                 System.err.println("[StorageManager] Skipping corrupt personnel record: "
                         + e.getMessage());
             }
@@ -77,16 +59,10 @@ public class StorageManager implements Storage {
 
         return Optional.of(mediTrack);
     }
-    
-    /**
-     * Serialises the current model data to JSON and writes it to disk.
-     *
-     * @param data a read-only snapshot of the current model state
-     * @throws IOException if the file cannot be written
-     */
+
+    /** Writes {@code data} to data.json. */
     @Override
     public void saveMediTrackData(ReadOnlyMediTrack data) throws IOException {
-        // Convert Personnel domain objects → JsonAdaptedPersonnel DTOs
         List<JsonAdaptedPersonnel> adaptedPersonnel = data.getPersonnelList()
                 .stream()
                 .map(JsonAdaptedPersonnel::fromModelType)
@@ -97,7 +73,6 @@ public class StorageManager implements Storage {
                 .map(JsonAdaptedSupply::fromModelType)
                 .toList();
 
-        // Preserve the existing password hash — read it back from the file
         String passwordHash = jsonStorage.readData()
                 .map(d -> d.passwordHash)
                 .orElse(null);

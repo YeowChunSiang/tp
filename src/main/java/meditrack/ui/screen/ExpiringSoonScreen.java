@@ -16,17 +16,13 @@ import meditrack.commons.core.Constants;
 import meditrack.model.ModelManager;
 import meditrack.model.Supply;
 
-/**
- * Read-only screen showing supplies expiring within 30 days.
- *
- * <p>Available to the Field Medic. No action buttons — this is purely
- * informational so the medic knows what's about to expire.
- */
+/** Field medic: supplies expiring in the next 30 days, read-only. */
 public class ExpiringSoonScreen extends VBox {
 
     private final ModelManager model;
     private final TableView<Supply> table = new TableView<>();
 
+    /** @param model used to read expiring supplies */
     public ExpiringSoonScreen(ModelManager model) {
         this.model = model;
         buildUi();

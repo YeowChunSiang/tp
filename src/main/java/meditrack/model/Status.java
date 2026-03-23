@@ -43,6 +43,7 @@ public enum Status {
         }
     }
 
+    /** Name with underscores replaced by spaces. */
     @Override
     public String toString() {
         return name().replace('_', ' ');

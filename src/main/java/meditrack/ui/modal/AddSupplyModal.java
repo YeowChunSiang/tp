@@ -21,20 +21,15 @@ import meditrack.logic.parser.Parser;
 import meditrack.logic.parser.exceptions.ParseException;
 import meditrack.model.ModelManager;
 
-/**
- * Pop-up dialog for adding a new supply item.
- *
- * <p>Fields: name, quantity, expiry date. Validates through the Parser
- * before constructing and executing the command through Logic.
- */
+/** Dialog to add a supply; parser then logic.executeCommand. */
 public class AddSupplyModal {
 
     /**
-     * Shows the Add Supply dialog and handles confirm/cancel.
+     * Shows the modal on {@code owner}.
      *
-     * @param model the model (needed by the parser for duplicate checks)
-     * @param logic the logic layer to execute the command through
-     * @param owner parent window so the dialog stays on top
+     * @param model for parser validation
+     * @param logic executes the add command
+     * @param owner parent window
      */
     public static void show(ModelManager model, Logic logic, Window owner) {
         Dialog<Void> dialog = new Dialog<>();

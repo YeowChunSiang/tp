@@ -30,10 +30,12 @@ public class Personnel {
         this.status = status;
     }
 
+    /** Returns the personnel name. */
     public String getName() {
         return name;
     }
 
+    /** Returns the current status. */
     public Status getStatus() {
         return status;
     }
@@ -50,8 +52,7 @@ public class Personnel {
     }
 
     /**
-     * Two Personnel objects are equal if their names match (case-insensitive).
-     * Used for duplicate detection during {@code addPersonnel}.
+     * Returns true if {@code obj} is a personnel with the same name (case-insensitive).
      */
     @Override
     public boolean equals(Object obj) {
@@ -65,11 +66,13 @@ public class Personnel {
         return this.name.equalsIgnoreCase(other.name);
     }
 
+    /** Hash from lowercased name. */
     @Override
     public int hashCode() {
         return name.toLowerCase().hashCode();
     }
 
+    /** Name and status for display. */
     @Override
     public String toString() {
         return name + " [" + status + "]";

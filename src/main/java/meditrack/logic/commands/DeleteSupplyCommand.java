@@ -20,6 +20,7 @@ public class DeleteSupplyCommand extends Command {
 
     private final Index targetIndex;
 
+    /** @param targetIndex index of the row to delete (from UI) */
     public DeleteSupplyCommand(Index targetIndex) {
         this.targetIndex = Objects.requireNonNull(targetIndex);
     }
@@ -34,6 +35,7 @@ public class DeleteSupplyCommand extends Command {
         }
     }
 
+    /** Field medic only. */
     @Override
     public Role getRequiredRole() {
         return Role.FIELD_MEDIC;

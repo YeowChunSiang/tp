@@ -26,6 +26,7 @@ public class FitPersonnelScreen extends VBox {
     private final TableView<Personnel> table = new TableView<>(tableData);
     private final Label countBadge = new Label();
 
+    /** @param model personnel data source */
     public FitPersonnelScreen(ModelManager model) {
         this.model = model;
         buildUi();

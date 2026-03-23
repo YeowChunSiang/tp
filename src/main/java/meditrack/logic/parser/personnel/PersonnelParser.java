@@ -35,6 +35,10 @@ public class PersonnelParser {
 
     /**
      * Expected format: {@code remove_personnel INDEX}
+     *
+     * @param args text after the command word
+     * @return command ready to execute
+     * @throws ParseException if the index is not a positive integer
      */
     public static RemovePersonnelCommand parseRemovePersonnel(String args) throws ParseException {
         int index = parsePositiveInt(args.trim(),
@@ -61,7 +65,9 @@ public class PersonnelParser {
     }
 
     /**
-     * No arguments; roster emptiness is checked when the command runs.
+     * No arguments; FIT list is validated when the command runs.
+     *
+     * @return command ready to execute
      */
     public static GenerateRosterCommand parseGenerateRoster() {
         return new GenerateRosterCommand();

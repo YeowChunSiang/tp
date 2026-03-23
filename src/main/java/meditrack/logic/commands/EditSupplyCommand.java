@@ -21,11 +21,16 @@ public class EditSupplyCommand extends Command {
     private final Index targetIndex;
     private final Supply editedSupply;
 
+    /**
+     * @param targetIndex 1-based index wrapped as {@link Index}
+     * @param editedSupply replacement supply data
+     */
     public EditSupplyCommand(Index targetIndex, Supply editedSupply) {
         this.targetIndex = Objects.requireNonNull(targetIndex);
         this.editedSupply = Objects.requireNonNull(editedSupply);
     }
 
+    /** Replaces the supply at the stored index. */
     @Override
     public CommandResult execute(Model model) throws CommandException {
         try {
@@ -40,6 +45,7 @@ public class EditSupplyCommand extends Command {
                 editedSupply.getExpiryDate()));
     }
 
+    /** Field medic only. */
     @Override
     public Role getRequiredRole() {
         return Role.FIELD_MEDIC;

@@ -13,6 +13,7 @@ public class Session {
     /**
      * Retrieves the single instance of the Session.
      */
+    /** Returns the singleton session object. */
     public static Session getInstance() {
         if (instance == null) {
             instance = new Session();
@@ -20,14 +21,17 @@ public class Session {
         return instance;
     }
 
+    /** Sets the role for the logged-in user. */
     public void setRole(Role role) {
         this.currentRole = role;
     }
 
+    /** Returns the current role, or null if not logged in. */
     public Role getRole() {
         return currentRole;
     }
 
+    /** Clears the session (e.g. on logout). */
     public void clear() {
         this.currentRole = null;
     }

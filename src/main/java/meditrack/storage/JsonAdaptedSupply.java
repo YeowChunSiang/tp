@@ -21,6 +21,9 @@ public class JsonAdaptedSupply {
     public final int quantity;
     public final String expiryDate;
 
+    /**
+     * Jackson constructor; not used directly from app code.
+     */
     @JsonCreator
     public JsonAdaptedSupply(@JsonProperty("name") String name,
                              @JsonProperty("quantity") int quantity,

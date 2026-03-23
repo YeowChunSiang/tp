@@ -23,22 +23,15 @@ import meditrack.logic.parser.exceptions.ParseException;
 import meditrack.model.ModelManager;
 import meditrack.model.Supply;
 
-/**
- * Pop-up dialog for editing an existing supply item.
- *
- * <p>Pre-fills the form with the current values of the selected supply.
- * Same validation and command flow as AddSupplyModal.
- */
+/** Edit supply dialog; same flow as add (parser then command). */
 public class EditSupplyModal {
 
     /**
-     * Shows the Edit Supply dialog for the given supply row.
-     *
-     * @param model         the model (for parser validation)
-     * @param logic         logic layer to execute through
-     * @param current       the supply being edited (pre-fills the fields)
-     * @param oneBasedIndex 1-based row index of the supply in the table
-     * @param owner         parent window
+     * @param model for parser validation
+     * @param logic executes the edit command
+     * @param current row being edited
+     * @param oneBasedIndex table index (1-based)
+     * @param owner parent window
      */
     public static void show(ModelManager model, Logic logic, Supply current,
                             int oneBasedIndex, Window owner) {

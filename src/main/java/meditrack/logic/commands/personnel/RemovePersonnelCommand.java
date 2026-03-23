@@ -8,15 +8,7 @@ import meditrack.model.ModelManager;
 import meditrack.model.Personnel;
 import meditrack.model.Role;
 
-/**
- * Removes a personnel member from the MediTrack roster by 1-based index.
- *
- * <p>Validation rules:
- * <ul>
- *   <li>Index must be a positive integer (parser)</li>
- *   <li>Index must be within the current list bounds (model)</li>
- * </ul>
- */
+/** Removes a roster entry by 1-based index (matches the table). */
 public class RemovePersonnelCommand extends Command {
 
     public static final String COMMAND_WORD = "remove_personnel";
@@ -29,13 +21,12 @@ public class RemovePersonnelCommand extends Command {
 
     private final int oneBasedIndex;
 
-    /**
-     * @param oneBasedIndex 1-based index as displayed in the UI list
-     */
+    /** @param oneBasedIndex row number as shown in the UI */
     public RemovePersonnelCommand(int oneBasedIndex) {
         this.oneBasedIndex = oneBasedIndex;
     }
 
+    /** Removes the person at the stored index. */
     @Override
     public CommandResult execute(Model model) throws CommandException {
         ModelManager manager = (ModelManager) model;
@@ -43,11 +34,13 @@ public class RemovePersonnelCommand extends Command {
         return new CommandResult(String.format(MESSAGE_SUCCESS, removed.getName()));
     }
 
+    /** Medical officer only. */
     @Override
     public Role getRequiredRole() {
         return Role.MEDICAL_OFFICER;
     }
 
+    /** Returns the 1-based index for this command. */
     public int getOneBasedIndex() {
         return oneBasedIndex;
     }

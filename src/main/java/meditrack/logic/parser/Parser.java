@@ -7,27 +7,21 @@ import java.util.Map;
 import meditrack.logic.parser.exceptions.ParseException;
 import meditrack.model.Model;
 
-/**
- * Validation utility for UI form inputs. Called before building a
- * Command object so we catch bad data early. Each command type has
- * its own set of rules checked in the switch statement.
- */
+/** Checks UI fields before a command is built. */
 public class Parser {
 
     private final Model model;
 
     /**
-     * @param model used for duplicate checks and list sizes during validation
+     * @param model used for list size and duplicate checks during validation
      */
     public Parser(Model model) {
         this.model = model;
     }
 
     /**
-     * Validates form fields for the given command type.
+     * Validates {@code fields} for {@code commandType}.
      *
-     * @param commandType which rules to apply
-     * @param fields      map of field name to raw string from the UI
      * @throws ParseException if any rule fails
      */
     public void validate(CommandType commandType, Map<String, String> fields) throws ParseException {

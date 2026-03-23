@@ -24,23 +24,15 @@ public class GenerateResupplyReportCommand extends Command {
     private final int daysThreshold;
 
     /**
-     * @param quantityThreshold supplies below this quantity count as low stock
-     * @param daysThreshold     supplies expiring within this many days from today are flagged
+     * @param quantityThreshold counts as low stock below this quantity
+     * @param daysThreshold expiring within this many days (from today) is flagged
      */
     public GenerateResupplyReportCommand(int quantityThreshold, int daysThreshold) {
         this.quantityThreshold = quantityThreshold;
         this.daysThreshold = daysThreshold;
     }
 
-    /**
-     * Builds the merged list of flagged supplies (low stock, expiring soon, or both).
-     * Used by this command and by the UI so the same rules apply in one place.
-     *
-     * @param model              current application model
-     * @param quantityThreshold  low-stock threshold
-     * @param daysThreshold      expiring-within threshold in days
-     * @return unmodifiable list of flagged entries, possibly empty
-     */
+    /** Shared helper so the UI table uses the same rules as the command. */
     public static List<ReportEntry> collectFlaggedEntries(Model model, int quantityThreshold,
             int daysThreshold) {
         List<Supply> lowStock = model.getLowStockSupplies(quantityThreshold);
@@ -75,6 +67,7 @@ public class GenerateResupplyReportCommand extends Command {
         return Collections.unmodifiableList(entries);
     }
 
+    /** Builds the text report from flagged supplies. */
     @Override
     public CommandResult execute(Model model) throws CommandException {
         List<ReportEntry> entries = collectFlaggedEntries(model, quantityThreshold, daysThreshold);
@@ -95,25 +88,29 @@ public class GenerateResupplyReportCommand extends Command {
         return new CommandResult(sb.toString().trim());
     }
 
+    /** Logistics officer only. */
     @Override
     public Role getRequiredRole() {
         return Role.LOGISTICS_OFFICER;
     }
 
-    /** One supply row in the resupply report with a human-readable flag reason. */
+    /** One flagged row for the report (supply + reason text). */
     public static class ReportEntry {
         private final Supply supply;
         private final String reason;
 
+        /** @param reason e.g. Low Stock, Expiring Soon, Both */
         public ReportEntry(Supply supply, String reason) {
             this.supply = supply;
             this.reason = reason;
         }
 
+        /** Returns the flagged supply. */
         public Supply getSupply() {
             return supply;
         }
 
+        /** Returns the flag reason string. */
         public String getReason() {
             return reason;
         }

@@ -22,12 +22,18 @@ public class AddSupplyCommand extends Command {
     private final int quantity;
     private final LocalDate expiryDate;
 
+    /**
+     * @param name supply name
+     * @param quantity quantity to add
+     * @param expiryDate expiry date
+     */
     public AddSupplyCommand(String name, int quantity, LocalDate expiryDate) {
         this.name = Objects.requireNonNull(name);
         this.quantity = quantity;
         this.expiryDate = Objects.requireNonNull(expiryDate);
     }
 
+    /** Adds the supply to the model. */
     @Override
     public CommandResult execute(Model model) throws CommandException {
         try {
@@ -39,6 +45,7 @@ public class AddSupplyCommand extends Command {
         return new CommandResult(String.format(MESSAGE_SUCCESS, name, quantity, expiryDate));
     }
 
+    /** Field medic only. */
     @Override
     public Role getRequiredRole() {
         return Role.FIELD_MEDIC;

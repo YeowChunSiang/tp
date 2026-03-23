@@ -31,11 +31,13 @@ public class MediTrack implements ReadOnlyMediTrack {
         return personnel;
     }
 
+    /** Unmodifiable view of supplies. */
     @Override
     public ObservableList<Supply> getSupplyList() {
         return FXCollections.unmodifiableObservableList(supplies);
     }
 
+    /** Unmodifiable view of personnel. */
     @Override
     public ObservableList<Personnel> getPersonnelList() {
         return FXCollections.unmodifiableObservableList(personnel);
@@ -46,6 +48,7 @@ public class MediTrack implements ReadOnlyMediTrack {
         return supplies.stream().anyMatch(s -> s.equals(supply));
     }
 
+    /** Adds a supply; throws if the name already exists (case-insensitive). */
     public void addSupply(Supply supply) {
         if (hasSupply(supply)) {
             throw new DuplicateSupplyException();
@@ -53,10 +56,12 @@ public class MediTrack implements ReadOnlyMediTrack {
         supplies.add(supply);
     }
 
+    /** Replaces the supply at {@code index}. */
     public void setSupply(int index, Supply editedSupply) {
         supplies.set(index, editedSupply);
     }
 
+    /** Removes and returns the supply at {@code index}. */
     public Supply removeSupply(int index) {
         return supplies.remove(index);
     }

@@ -8,16 +8,7 @@ import meditrack.model.ModelManager;
 import meditrack.model.Role;
 import meditrack.model.Status;
 
-/**
- * Updates the medical readiness status of a personnel member by 1-based index.
- *
- * <p>Validation rules:
- * <ul>
- *   <li>Index must be a positive integer (parser)</li>
- *   <li>Status must be a valid {@link Status} enum value (parser)</li>
- *   <li>Index must be within the current list bounds (model)</li>
- * </ul>
- */
+/** Changes someone's status. Index is 1-based like the UI table. */
 public class UpdateStatusCommand extends Command {
 
     public static final String COMMAND_WORD = "update_status";
@@ -41,25 +32,28 @@ public class UpdateStatusCommand extends Command {
         this.newStatus = newStatus;
     }
 
+    /** Updates the person's status in the model. */
     @Override
     public CommandResult execute(Model model) throws CommandException {
         ModelManager manager = (ModelManager) model;
-        // Fetch name before update for the feedback message
         String name = manager.getFilteredPersonnelList(null)
                 .get(oneBasedIndex - 1).getName();
         manager.setPersonnelStatus(oneBasedIndex, newStatus);
         return new CommandResult(String.format(MESSAGE_SUCCESS, name, newStatus));
     }
 
+    /** Medical officer only. */
     @Override
     public Role getRequiredRole() {
         return Role.MEDICAL_OFFICER;
     }
 
+    /** Returns the 1-based index for this command. */
     public int getOneBasedIndex() {
         return oneBasedIndex;
     }
 
+    /** Returns the new status for this command. */
     public Status getNewStatus() {
         return newStatus;
     }

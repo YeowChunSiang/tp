@@ -13,17 +13,13 @@ import javafx.scene.layout.VBox;
 import meditrack.model.ModelManager;
 import meditrack.model.Supply;
 
-/**
- * Read-only view of the full inventory for the Logistics Officer.
- *
- * <p>No action buttons — the logistics officer can only view supply levels
- * here, not edit them. Editing is the Field Medic's job.
- */
+/** Logistics: full stock list, view only. */
 public class SupplyLevelsScreen extends VBox {
 
     private final ModelManager model;
     private final TableView<Supply> table = new TableView<>();
 
+    /** @param model full supply list */
     public SupplyLevelsScreen(ModelManager model) {
         this.model = model;
         buildUi();

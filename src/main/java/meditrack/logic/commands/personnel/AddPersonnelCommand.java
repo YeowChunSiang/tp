@@ -8,16 +8,7 @@ import meditrack.model.ModelManager;
 import meditrack.model.Role;
 import meditrack.model.Status;
 
-/**
- * Adds a new personnel member to the MediTrack roster.
- *
- * <p>Validation rules enforced (parser validates first; model enforces duplicate check):
- * <ul>
- *   <li>Name must be non-blank (parser)</li>
- *   <li>Status must be a valid {@link Status} value (parser)</li>
- *   <li>No duplicate name, case-insensitive (model)</li>
- * </ul>
- */
+/** Adds someone to the roster. Parser checks fields; model rejects duplicate names. */
 public class AddPersonnelCommand extends Command {
 
     public static final String COMMAND_WORD = "add_personnel";
@@ -32,14 +23,15 @@ public class AddPersonnelCommand extends Command {
     private final Status status;
 
     /**
-     * @param name   pre-validated non-blank name
-     * @param status pre-validated status enum value
+     * @param name personnel name (already validated when used from UI)
+     * @param status status enum
      */
     public AddPersonnelCommand(String name, Status status) {
         this.name = name;
         this.status = status;
     }
 
+    /** Adds the person to the roster. */
     @Override
     public CommandResult execute(Model model) throws CommandException {
         ModelManager manager = (ModelManager) model;
@@ -47,16 +39,18 @@ public class AddPersonnelCommand extends Command {
         return new CommandResult(String.format(MESSAGE_SUCCESS, name, status));
     }
 
+    /** Medical officer only. */
     @Override
     public Role getRequiredRole() {
         return Role.MEDICAL_OFFICER;
     }
 
-    // Getters for testing
+    /** Returns the name passed to the constructor. */
     public String getName() {
         return name;
     }
 
+    /** Returns the status passed to the constructor. */
     public Status getStatus() {
         return status;
     }
