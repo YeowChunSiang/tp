@@ -1,8 +1,57 @@
 package meditrack.model;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
 /**
- * Represents a Supply item in the inventory.
- * To be implemented by Person B.
+ * Represents a medical supply item in the inventory.
+ * Name is case-insensitively unique so we don't end up with
+ * both "Bandages" and "bandages" in the list.
  */
 public class Supply {
+
+    private final String name;
+    private final int quantity;
+    private final LocalDate expiryDate;
+
+    public Supply(String name, int quantity, LocalDate expiryDate) {
+        this.name = Objects.requireNonNull(name);
+        this.quantity = quantity;
+        this.expiryDate = Objects.requireNonNull(expiryDate);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    // equality is based on name only (case-insensitive) for duplicate detection
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof Supply)) {
+            return false;
+        }
+        Supply otherSupply = (Supply) other;
+        return name.equalsIgnoreCase(otherSupply.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name.toLowerCase());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Supply{name='%s', quantity=%d, expiryDate=%s}", name, quantity, expiryDate);
+    }
 }

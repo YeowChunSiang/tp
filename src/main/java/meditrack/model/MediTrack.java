@@ -3,12 +3,15 @@ package meditrack.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import meditrack.model.exceptions.DuplicateSupplyException;
+
 /**
- * Wraps all data at the MediTrack level.
- * Serves as the root container for the application's data.
+ * Root data container that holds both the supply and personnel lists.
+ * The public getters return unmodifiable lists so nothing outside can
+ * accidentally mess with the data directly.
  */
 public class MediTrack implements ReadOnlyMediTrack {
-    // Person B and C will build out the actual list operations!
+
     private final ObservableList<Supply> supplies = FXCollections.observableArrayList();
     final ObservableList<Personnel> personnel = FXCollections.observableArrayList();
 
@@ -42,4 +45,33 @@ public class MediTrack implements ReadOnlyMediTrack {
     public ObservableList<Personnel> getPersonnelList() {
         return FXCollections.unmodifiableObservableList(personnel);
     }
+
+    // ========== Supply list operations (Person B) ==========
+
+    /** Checks for duplicate supply name (case-insensitive). */
+    public boolean hasSupply(Supply supply) {
+        return supplies.stream().anyMatch(s -> s.equals(supply));
+    }
+
+    public void addSupply(Supply supply) {
+        if (hasSupply(supply)) {
+            throw new DuplicateSupplyException();
+        }
+        supplies.add(supply);
+    }
+
+    public void setSupply(int index, Supply editedSupply) {
+        supplies.set(index, editedSupply);
+    }
+
+    public Supply removeSupply(int index) {
+        return supplies.remove(index);
+    }
+
+    /** Returns the internal modifiable list — only ModelManager should call this. */
+    public ObservableList<Supply> getInternalSupplyList() {
+        return supplies;
+    }
+
+    // ========== Personnel list operations (Person C will add here) ==========
 }

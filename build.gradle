@@ -38,6 +38,9 @@ dependencies {
     implementation 'org.mindrot:jbcrypt:0.4'
 
     // JUnit 5 for testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // JUnit 5 for testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
 }
