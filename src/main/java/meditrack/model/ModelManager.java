@@ -1,24 +1,19 @@
 package meditrack.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import meditrack.commons.core.Index;
 import meditrack.logic.commands.exceptions.CommandException;
+import meditrack.model.exceptions.InvalidIndexException;
 
-/**
- * Concrete implementation of {@link Model}.
- *
- * <p>Wraps a {@link MediTrack} data object and a {@link Session}, and exposes
- * all Personnel CRUD operations required by Person C's commands.
- *
- * <p>The underlying personnel list is an {@link ObservableList} so JavaFX
- * UI components can bind to it directly.
- */
+/** In-memory model: supplies + personnel + current session. */
 public class ModelManager implements Model {
 
     private static final String MSG_DUPLICATE =
@@ -32,74 +27,114 @@ public class ModelManager implements Model {
     private final Session session;
 
     /**
-     * Constructs a ModelManager with the given data store.
-     * Uses the shared {@link Session} singleton.
+     * Creates a manager backed by the given {@link MediTrack}.
+     *
+     * @param mediTrack data loaded from storage or empty for a new session
      */
     public ModelManager(MediTrack mediTrack) {
         this.mediTrack = mediTrack;
         this.session = Session.getInstance();
     }
 
-    // -------------------------------------------------------------------------
-    // Model interface — session
-    // -------------------------------------------------------------------------
+    /** Creates a manager with an empty {@link MediTrack}. */
+    public ModelManager() {
+        this(new MediTrack());
+    }
 
+    /** Returns the current session. */
     @Override
     public Session getSession() {
         return session;
     }
 
+    /** Sets the active role after login. */
     @Override
     public void setRole(Role role) {
         session.setRole(role);
     }
 
-    // -------------------------------------------------------------------------
-    // Personnel — internal mutable list (MediTrack stores ObservableList)
-    // -------------------------------------------------------------------------
+    /** Adds a supply; duplicate names are rejected in the backing list. */
+    @Override
+    public void addSupply(Supply supply) {
+        mediTrack.addSupply(supply);
+    }
 
-    /**
-     * Returns a live, unmodifiable view of the full personnel list.
-     * Suitable for binding to JavaFX TableViews.
-     */
+    /** Replaces the supply at {@code targetIndex}. */
+    @Override
+    public void editSupply(Index targetIndex, Supply editedSupply) {
+        int zeroIndex = targetIndex.getZeroBased();
+        ObservableList<Supply> internalList = mediTrack.getInternalSupplyList();
+        if (zeroIndex < 0 || zeroIndex >= internalList.size()) {
+            throw new InvalidIndexException();
+        }
+        mediTrack.setSupply(zeroIndex, editedSupply);
+    }
+
+    /** Deletes and returns the supply at {@code targetIndex}. */
+    @Override
+    public Supply deleteSupply(Index targetIndex) {
+        int zeroIndex = targetIndex.getZeroBased();
+        ObservableList<Supply> internalList = mediTrack.getInternalSupplyList();
+        if (zeroIndex < 0 || zeroIndex >= internalList.size()) {
+            throw new InvalidIndexException();
+        }
+        return mediTrack.removeSupply(zeroIndex);
+    }
+
+    /** Returns all supplies as an observable list. */
+    @Override
+    public ObservableList<Supply> getFilteredSupplyList() {
+        return mediTrack.getSupplyList();
+    }
+
+    /** Supplies expiring within {@code daysThreshold} days, sorted by expiry. */
+    @Override
+    public List<Supply> getExpiringSupplies(int daysThreshold) {
+        LocalDate today = LocalDate.now();
+        LocalDate cutoff = today.plusDays(daysThreshold);
+        return mediTrack.getInternalSupplyList().stream()
+                .filter(s -> !s.getExpiryDate().isBefore(today) && !s.getExpiryDate().isAfter(cutoff))
+                .sorted(Comparator.comparing(Supply::getExpiryDate))
+                .collect(Collectors.toList());
+    }
+
+    /** Supplies below {@code quantityThreshold} quantity, sorted ascending. */
+    @Override
+    public List<Supply> getLowStockSupplies(int quantityThreshold) {
+        return mediTrack.getInternalSupplyList().stream()
+                .filter(s -> s.getQuantity() < quantityThreshold)
+                .sorted(Comparator.comparingInt(Supply::getQuantity))
+                .collect(Collectors.toList());
+    }
+
+    /** Read-only view of data for saving to disk. */
+    @Override
+    public ReadOnlyMediTrack getMediTrack() {
+        return mediTrack;
+    }
+
+    /** Observable personnel list for the UI. */
+    @Override
     public ObservableList<Personnel> getPersonnelList() {
         return mediTrack.getPersonnelList();
     }
 
-    // -------------------------------------------------------------------------
-    // addPersonnel
-    // -------------------------------------------------------------------------
-
-    /**
-     * Adds a new personnel member to the roster.
-     *
-     * @param name   non-blank display name
-     * @param status initial medical readiness status
-     * @throws CommandException if a member with the same name (case-insensitive) already exists
-     */
+    /** Adds a person to the roster. */
+    @Override
     public void addPersonnel(String name, Status status) throws CommandException {
         Personnel candidate = new Personnel(name, status);
-        for (Personnel existing : getInternalList()) {
+        for (Personnel existing : getInternalPersonnelList()) {
             if (existing.equals(candidate)) {
                 throw new CommandException(String.format(MSG_DUPLICATE, name));
             }
         }
-        getInternalList().add(candidate);
+        getInternalPersonnelList().add(candidate);
     }
 
-    // -------------------------------------------------------------------------
-    // deletePersonnel
-    // -------------------------------------------------------------------------
-
-    /**
-     * Removes a personnel member by 1-based index (as shown in the UI).
-     *
-     * @param oneBasedIndex index shown to the user, starting at 1
-     * @return the removed {@link Personnel}
-     * @throws CommandException if the index is out of range
-     */
+    /** Removes the person at the given 1-based index. */
+    @Override
     public Personnel deletePersonnel(int oneBasedIndex) throws CommandException {
-        List<Personnel> list = getInternalList();
+        List<Personnel> list = getInternalPersonnelList();
         if (oneBasedIndex < 1 || oneBasedIndex > list.size()) {
             throw new CommandException(
                     String.format(MSG_OUT_OF_BOUNDS, oneBasedIndex, list.size()));
@@ -107,19 +142,10 @@ public class ModelManager implements Model {
         return list.remove(oneBasedIndex - 1);
     }
 
-    // -------------------------------------------------------------------------
-    // setPersonnelStatus
-    // -------------------------------------------------------------------------
-
-    /**
-     * Updates the status of a personnel member by 1-based index.
-     *
-     * @param oneBasedIndex index shown to the user, starting at 1
-     * @param newStatus     the new medical readiness status
-     * @throws CommandException if the index is out of range
-     */
+    /** Updates status for the person at the 1-based index. */
+    @Override
     public void setPersonnelStatus(int oneBasedIndex, Status newStatus) throws CommandException {
-        List<Personnel> list = getInternalList();
+        List<Personnel> list = getInternalPersonnelList();
         if (oneBasedIndex < 1 || oneBasedIndex > list.size()) {
             throw new CommandException(
                     String.format(MSG_OUT_OF_BOUNDS, oneBasedIndex, list.size()));
@@ -127,39 +153,19 @@ public class ModelManager implements Model {
         list.get(oneBasedIndex - 1).setStatus(newStatus);
     }
 
-    // -------------------------------------------------------------------------
-    // getFilteredPersonnelList
-    // -------------------------------------------------------------------------
-
-    /**
-     * Returns a snapshot list of personnel filtered by status.
-     * Pass {@code null} to return all personnel with no filter applied.
-     *
-     * @param statusFilter status to filter by, or {@code null} for all
-     * @return immutable filtered list
-     */
+    /** Personnel filtered by status; {@code null} means everyone. */
+    @Override
     public List<Personnel> getFilteredPersonnelList(Status statusFilter) {
         if (statusFilter == null) {
-            return Collections.unmodifiableList(new ArrayList<>(getInternalList()));
+            return Collections.unmodifiableList(new ArrayList<>(getInternalPersonnelList()));
         }
-        return getInternalList().stream()
+        return getInternalPersonnelList().stream()
                 .filter(p -> p.getStatus() == statusFilter)
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    // -------------------------------------------------------------------------
-    // generateRoster (stateless)
-    // -------------------------------------------------------------------------
-
-    /**
-     * Generates a randomised duty roster from all currently FIT personnel.
-     *
-     * <p>This operation is <b>stateless</b> — it does not persist the roster
-     * to the model. Each call produces a fresh shuffle.
-     *
-     * @return a mutable, randomly-ordered copy of the FIT personnel list
-     * @throws CommandException if there are no FIT personnel
-     */
+    /** Shuffled list of FIT personnel for duty roster. */
+    @Override
     public List<Personnel> generateRoster() throws CommandException {
         List<Personnel> fit = new ArrayList<>(getFilteredPersonnelList(Status.FIT));
         if (fit.isEmpty()) {
@@ -169,27 +175,13 @@ public class ModelManager implements Model {
         return fit;
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Returns the mutable backing list from MediTrack.
-     * MediTrack exposes an unmodifiable view via getPersonnelList(), so we
-     * cast through to the internal ObservableList for mutation.
-     */
-    private ObservableList<Personnel> getInternalList() {
-        // Both ModelManager and MediTrack are in meditrack.model so getPersonnelObservable() is accessible.
-        return mediTrack.getPersonnelObservable();
-    }
-
-    /** Returns the underlying MediTrack data store. Used by PersonnelScreen to get a snapshot for saving. */
-    public MediTrack getMediTrack() {
-        return mediTrack;
-    }
-
-    /** Total number of personnel currently in the roster. */
+    /** Number of people in the roster. */
+    @Override
     public int getPersonnelCount() {
-        return getInternalList().size();
+        return getInternalPersonnelList().size();
+    }
+
+    private ObservableList<Personnel> getInternalPersonnelList() {
+        return mediTrack.getPersonnelObservable();
     }
 }

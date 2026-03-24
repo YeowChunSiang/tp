@@ -22,13 +22,7 @@ import meditrack.ui.modal.RemovePersonnelModal;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Personnel management screen.
- * MEDICAL_OFFICER: editable table with Add/Remove buttons and inline status ComboBox.
- * All other roles: read-only, same layout with controls hidden.
- *
- * Accepts a StorageManager so it can persist changes to data.json after every command.
- */
+/** Personnel list — med officer can edit, other roles view only. */
 public class PersonnelScreen extends VBox {
 
     private final ModelManager model;
@@ -39,18 +33,17 @@ public class PersonnelScreen extends VBox {
     private final TableView<Personnel> table = new TableView<>(tableData);
     private final Label statusLabel = new Label();
 
+    /**
+     * @param model personnel data
+     * @param storage used to save after some actions
+     */
     public PersonnelScreen(ModelManager model, StorageManager storage) {
         this.model = model;
         this.storage = storage;
-        // MEDICAL_OFFICER is the only write-capable role
         this.readOnly = Session.getInstance().getRole() != Role.MEDICAL_OFFICER;
         buildUi();
         refresh();
     }
-
-    // -------------------------------------------------------------------------
-    // UI construction
-    // -------------------------------------------------------------------------
 
     private void buildUi() {
         setSpacing(12);
@@ -74,7 +67,6 @@ public class PersonnelScreen extends VBox {
         // Table
         buildTable();
 
-        // Footer — Remove button only for MEDICAL_OFFICER
         HBox footer = new HBox(8);
         footer.setAlignment(Pos.CENTER_RIGHT);
         if (!readOnly) {
@@ -93,7 +85,6 @@ public class PersonnelScreen extends VBox {
 
     @SuppressWarnings("unchecked")
     private void buildTable() {
-        // # column
         TableColumn<Personnel, String> indexCol = new TableColumn<>("#");
         indexCol.setPrefWidth(45);
         indexCol.setCellValueFactory(cd ->
@@ -151,10 +142,6 @@ public class PersonnelScreen extends VBox {
         table.setPlaceholder(new Label("No personnel found. Use '+ Add Personnel' to get started."));
     }
 
-    // -------------------------------------------------------------------------
-    // Modal launchers
-    // -------------------------------------------------------------------------
-
     private void openAddModal() {
         AddPersonnelModal modal = new AddPersonnelModal();
         modal.showAndWait().ifPresent(cmd -> {
@@ -188,7 +175,6 @@ public class PersonnelScreen extends VBox {
         });
     }
 
-    /** Persists current model state to data.json. Called after every successful mutation. */
     private void saveData() {
         try {
             storage.saveMediTrackData(model.getMediTrack());
@@ -196,7 +182,7 @@ public class PersonnelScreen extends VBox {
             setFeedback("Warning: could not save — " + ex.getMessage(), true);
         }
     }
-    /** Reloads the table from the current model state. */
+    /** Reloads the table from the model. */
     public void refresh() {
         List<Personnel> all = model.getFilteredPersonnelList(null);
         tableData.setAll(all);

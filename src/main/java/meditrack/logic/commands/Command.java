@@ -2,19 +2,21 @@ package meditrack.logic.commands;
 
 import meditrack.logic.commands.exceptions.CommandException;
 import meditrack.model.Model;
+import meditrack.model.Role;
 
 /**
- * Represents a command with hidden internal logic and the ability to be executed.
- * All specific user actions (e.g., AddSupplyCommand, UpdateStatusCommand) must extend this class.
+ * Abstract base class for all commands in the application.
+ * Each concrete command must implement execute() and getRequiredRole().
  */
 public abstract class Command {
 
     /**
-     * Executes the command and returns the result message.
-     *
-     * @param model The {@code Model} which the command should operate on.
-     * @return A {@code CommandResult} object containing the feedback message of the operation result.
-     * @throws CommandException If an error occurs during command execution or if role-based constraints are violated.
+     * Runs the command against the model and returns a result message.
      */
     public abstract CommandResult execute(Model model) throws CommandException;
+
+    /**
+     * Returns the role needed to run this command, or null if any role can run it.
+     */
+    public abstract Role getRequiredRole();
 }

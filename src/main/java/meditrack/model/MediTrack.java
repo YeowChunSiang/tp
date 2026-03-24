@@ -3,12 +3,15 @@ package meditrack.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import meditrack.model.exceptions.DuplicateSupplyException;
+
 /**
- * Wraps all data at the MediTrack level.
- * Serves as the root container for the application's data.
+ * Root data container that holds both the supply and personnel lists.
+ * The public getters return unmodifiable lists so nothing outside can
+ * accidentally mess with the data directly.
  */
 public class MediTrack implements ReadOnlyMediTrack {
-    // Person B and C will build out the actual list operations!
+
     private final ObservableList<Supply> supplies = FXCollections.observableArrayList();
     final ObservableList<Personnel> personnel = FXCollections.observableArrayList();
 
@@ -21,25 +24,55 @@ public class MediTrack implements ReadOnlyMediTrack {
         personnel.add(p);
     }
 
-    // -------------------------------------------------------------------------
-    // Package-private accessor for ModelManager (same package)
-    // -------------------------------------------------------------------------
-
     /**
-     * Returns the live mutable personnel list.
-     * Only accessible within {@code meditrack.model} — used by {@link ModelManager}.
+     * Returns the live mutable personnel list (same package only; used by {@link ModelManager}).
      */
     ObservableList<Personnel> getPersonnelObservable() {
         return personnel;
     }
 
+    /** Unmodifiable view of supplies. */
     @Override
     public ObservableList<Supply> getSupplyList() {
         return FXCollections.unmodifiableObservableList(supplies);
     }
 
+    /** Unmodifiable view of personnel. */
     @Override
     public ObservableList<Personnel> getPersonnelList() {
         return FXCollections.unmodifiableObservableList(personnel);
+    }
+
+    /** Checks for duplicate supply name (case-insensitive). */
+    public boolean hasSupply(Supply supply) {
+        return supplies.stream().anyMatch(s -> s.equals(supply));
+    }
+
+    /** Adds a supply; throws if the name already exists (case-insensitive). */
+    public void addSupply(Supply supply) {
+        if (hasSupply(supply)) {
+            throw new DuplicateSupplyException();
+        }
+        supplies.add(supply);
+    }
+
+    /** Replaces the supply at {@code index}. */
+    public void setSupply(int index, Supply editedSupply) {
+        supplies.set(index, editedSupply);
+    }
+
+    /** Removes and returns the supply at {@code index}. */
+    public Supply removeSupply(int index) {
+        return supplies.remove(index);
+    }
+
+    /** Returns the internal modifiable list — only ModelManager should call this. */
+    public ObservableList<Supply> getInternalSupplyList() {
+        return supplies;
+    }
+
+    /** Appends a supply without duplicate check — used by StorageManager when loading from disk. */
+    public void addSupplyRecord(Supply s) {
+        supplies.add(s);
     }
 }

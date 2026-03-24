@@ -28,6 +28,7 @@ public class AddPersonnelModal extends Dialog<AddPersonnelCommand> {
             new ComboBox<>(FXCollections.observableArrayList(Status.values()));
     private final Label validationLabel = new Label();
 
+    /** Builds the add-personnel dialog (call {@link #showAndWait()}). */
     public AddPersonnelModal() {
         setTitle("Add Personnel");
         setHeaderText("Enter new personnel details");
