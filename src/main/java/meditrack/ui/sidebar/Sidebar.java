@@ -70,7 +70,7 @@ public class Sidebar extends VBox {
 
         Role role = Session.getInstance().getRole();
         String roleText = switch (role) {
-            case MEDICAL_OFFICER  -> "Medical Officer";
+            case MEDICAL_OFFICER  -> "Medical Officer / Platoon Commander";
             case FIELD_MEDIC      -> "Field Medic";
             case LOGISTICS_OFFICER -> "Logistics Officer";
         };
