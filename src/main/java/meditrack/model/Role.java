@@ -4,8 +4,8 @@ package meditrack.model;
  * Represents the roles available in the MediTrack system.
  */
 public enum Role {
-    FIELD_MEDIC("Medical Officer / Platoon Commander"),
-    MEDICAL_OFFICER("Field Medic"),
+    FIELD_MEDIC("Field Medic"),
+    MEDICAL_OFFICER("Medical Officer / Platoon Commander"),
     LOGISTICS_OFFICER("Logistics Officer");
 
     private final String displayName;
