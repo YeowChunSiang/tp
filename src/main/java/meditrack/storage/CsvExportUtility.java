@@ -2,6 +2,7 @@ package meditrack.storage;
 
 import meditrack.model.Personnel;
 import meditrack.model.ReadOnlyMediTrack;
+import meditrack.model.Role;
 import meditrack.model.Supply;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,14 +18,17 @@ import java.time.format.DateTimeFormatter;
 public class CsvExportUtility {
 
     /**
-     * Exports the current Personnel Roster and Supply Inventory to a CSV file.
-     * * @param data The current read-only state of the application data.
+     * Exports the application data to a CSV file based on the user's security clearance.
+     *
+     * @param data        The current read-only state of the application data.
+     * @param currentRole The role of the user requesting the export.
      * @return The file path where the CSV was saved.
      * @throws IOException If there is an error writing to the file system.
      */
-    public static Path exportData(ReadOnlyMediTrack data) throws IOException {
+    public static Path exportData(ReadOnlyMediTrack data, Role currentRole) throws IOException {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String fileName = "MediTrack_Export_" + timestamp + ".csv";
+        String rolePrefix = currentRole.name();
+        String fileName = rolePrefix + "_Export_" + timestamp + ".csv";
         Path exportDir = Paths.get(System.getProperty("user.dir"), "exports");
 
         if (!Files.exists(exportDir)) {
@@ -35,16 +39,19 @@ public class CsvExportUtility {
 
         try (FileWriter writer = new FileWriter(filePath.toFile())) {
 
-            // --- Export Personnel Roster ---
-            writer.append("=== PERSONNEL ROSTER ===\n");
-            writer.append("Name,Status\n");
-            for (Personnel p : data.getPersonnelList()) {
-                writer.append(String.format("\"%s\",\"%s\"\n", p.getName(), p.getStatus().toString()));
+            // --- 1. PERSONNEL ROSTER (RESTRICTED ACCESS) ---
+            // Only MOs and Field Medics have clearance to export medical data
+            if (currentRole == Role.MEDICAL_OFFICER || currentRole == Role.FIELD_MEDIC) {
+                writer.append("=== PERSONNEL ROSTER ===\n");
+                writer.append("Name,Status\n");
+                for (Personnel p : data.getPersonnelList()) {
+                    writer.append(String.format("\"%s\",\"%s\"\n", p.getName(), p.getStatus().toString()));
+                }
+                writer.append("\n");
             }
 
-            writer.append("\n");
-
-            // --- Export Supply Inventory ---
+            // --- 2. SUPPLY INVENTORY (GLOBAL ACCESS) ---
+            // All roles need access to supply data for operational readiness
             writer.append("=== SUPPLY INVENTORY ===\n");
             writer.append("Item Name,Quantity,Expiry Date\n");
             for (Supply s : data.getSupplyList()) {
