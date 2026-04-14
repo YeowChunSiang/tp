@@ -2,8 +2,8 @@
 
 ## Demo Video
 
-[Watch the MediTrack demo on Google Drive](https://drive.google.com/file/d/1Mtxf4TF2UstaHiYG3ySM5TI6XzA6kdUa/view?usp=sharing)
-
+[Watch the MediTrack demo on Google Drive](https://drive.google.com/file/d/1hN74Z3nh_04Pj5khSHWeueCaimf_FQfp/view?usp=sharing)
+Remember to open caption(CC) for details :)
 ---
 
 ## 1. Product Overview
