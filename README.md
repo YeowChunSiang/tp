@@ -8,6 +8,8 @@
 
 Designed for high-pressure, austere environments, MediTrack operates completely offline and utilizes strict **Role-Based Access Control (RBAC)** to ensure operators only access data relevant to their specific operational duties.
 
+**Demo Video:** [Watch the MediTrack demo on Google Drive](https://drive.google.com/file/d/1_szb43Ip7IusvwUSp-yDspeJWB25B0_Q/view?usp=sharing). Remember to turn on the captions (CC) :)
+
 ![MediTrack Dashboard](docs/images/MediTrack_screenshot.png)
 
 ---
@@ -39,7 +41,7 @@ MediTrack comes pre-configured with four operational roles for demonstration and
 ## 🚀 Quick Start
 
 ### Option 1: Running the Application (End-User)
-1. Ensure you have **Java 21** (or above) installed.
+1. Ensure you have **Java 21** installed.
 2. Download the latest `MediTrack.jar` from the [Releases](../../releases) tab.
 3. Open a terminal and run the application:
    ```bash

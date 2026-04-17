@@ -666,7 +666,7 @@ For all use cases, the **System** is `MediTrack` and the **Actor** is the authen
 
 ## Appendix D: Non-Functional Requirements
 
-1. **Platform:** Should work on any OS with Java 21 or above installed.
+1. **Platform:** Should work on any OS with Java 21 installed.
 2. **Offline operation:** Must function entirely offline with no network dependency.
 3. **Performance:** Should handle up to 200 personnel and supply items without noticeable lag (< 1 second for any command).
 4. **Data persistence:** All data must be saved to local storage after every command execution.
