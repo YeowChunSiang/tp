@@ -51,7 +51,7 @@ test {
 }
 
 shadowJar {
-    archiveFileName = 'meditrack.jar'
+    archiveFileName = 'MediTrack.jar'
 }
 
 run {

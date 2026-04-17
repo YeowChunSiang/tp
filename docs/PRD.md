@@ -1,11 +1,5 @@
 # Product Requirements Document (PRD)
 
-## Demo Video
-
-[Watch the MediTrack demo on Google Drive](https://drive.google.com/file/d/1_szb43Ip7IusvwUSp-yDspeJWB25B0_Q/view?usp=sharing)
-Remember to open caption(CC) for details :)
----
-
 ## 1. Product Overview
 
 MediTrack is a standalone **Java desktop GUI application** designed to help military field medics manage medical logistics and personnel readiness during deployments and training exercises.

@@ -22,11 +22,13 @@
 
 Designed for high-pressure environments, MediTrack operates completely offline and utilizes strict **Role-Based Access Control (RBAC)** to ensure that operators only see and interact with the data relevant to their specific operational duties.
 
+**Demo Video:** [Watch the MediTrack demo on Google Drive](https://drive.google.com/file/d/1_szb43Ip7IusvwUSp-yDspeJWB25B0_Q/view?usp=sharing). Remember to turn on the captions (CC) :)
+
 ---
 
 ## 2. Quick Start
 
-1. Ensure you have **Java 17** or above installed on your computer.
+1. Ensure you have **Java 21** installed on your computer.
 2. Download the latest `MediTrack.jar` from the releases page.
 3. Copy the file to an empty folder where you want to store your operational data.
 4. Open a command terminal, navigate to the folder containing the file, and run the following command:
